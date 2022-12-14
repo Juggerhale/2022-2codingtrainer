@@ -1,0 +1,249 @@
+형래 님과 카카오톡 대화
+저장한 날짜 : 2022-12-14 21:48:53
+
+--------------- 2022년 9월 24일 토요일 ---------------
+운영정책을 위반한 메시지로 신고 접수 시 카카오톡 이용에 제한이 있을 수 있습니다. 
+[형래] [오후 9:11] 안녕하세요 조교님 혹시 코딩 질문 드려도 되나용?
+[이동현] [오후 9:11] 네
+[이동현] [오후 9:11] 학번 알려주세요
+[형래] [오후 9:12] 오
+[형래] [오후 9:12] 저는 202220667
+[형래] [오후 9:12] 입니당
+[이동현] [오후 9:12] 네
+[형래] [오후 9:13] 지금 풀고있는 문제가 있는데, 계속 시간초과나서 정답코드 알아봤는데
+[형래] [오후 9:13] #include <iostream>
+
+#include <vector>
+#include <cstdio>
+#include <algorithm>
+#include <functional>
+using namespace std;
+#define all(c) ((c).begin()), ((c).end())
+struct rectangle { int xl, yl, xh, yh; };
+long long solution(vector<vector<int>> rectangles)
+{
+    vector<int> ys; // y좌표로 구간 나누기
+    for (int i = 0; i < rectangles.size(); ++i)
+    {
+        ys.push_back(rectangles[i][1]);
+        ys.push_back(rectangles[i][3]);
+    }
+    sort(all(ys)); ys.erase(unique(all(ys)), ys.end()); //ys 정렬 후 중복 제거
+
+    struct event { int x, l, h, c; }; // plane sweep
+    vector<event> es;
+    for (int i = 0; i < rectangles.size(); ++i)
+    {
+        int l = (int)distance(ys.begin(), lower_bound(all(ys), rectangles[i][1])); // l = rectangles[i][1]의 인덱스 (아래 y좌표)
+        int h = (int)distance(ys.begin(), lower_bound(all(ys), rectangles[i][3])); // h = rectangles[i][3]의 인덱스 (위 y좌표) //lower_bound는 이분탐색이라 빠름
+        es.push_back({ rectangles[i][0], l, h, +1 }); // 왼쪽  x좌표, l, h, +1
+        es.push_back({ rectangles[i][2], l, h, -1 }); // 오른쪽 x좌표, l, h, -1
+    }
+    sort(all(es), [](event a, event b) { return a.x != b.x ? a.x < b.x : a.c > b.c; });  //x가 다르면 x오름차순, x가 같으면 왼쪽인 x좌표가 먼저
+    
+    int n = (int)ys.size(); //
+    cout<<n<<"\n\n";
+    vector<int> C(8 * n), A(8 * n);
+    function<void(int, int, int, int, int, int)> aux = [&](int a, int b, int c, int l, int r, int k)
+    {
+        cout<<"---------------\n아래 y좌표 인덱스 = "<<a<<" | 위 y좌표 인덱스 = "<<b<<" | 왼쪽이면 1, 오른쪽이면 -1 = "<<c<<" | l = "<<l<<" | r = "<<r<<" | k = "<<k<<"\nA: ";
+        for(int i=0; i<10; ++i)
+            printf("%d ", A[i]);
+        printf("\nC: ");
+        for(int i=0; i<10; ++i)
+            printf("%d ", C[i]);
+        cout<<"\n---------------\n";
+        
+        if ((a = max(a, l)) >= (b = min(b, r))) //a는 a,l의 최대, b는 b,r의 최소, a>=b면 리턴
+            return;
+        if (a == l && b == r)
+            C[k] += c;
+        else
+        {
+            aux(a, b, c, l, (l + r) / 2, 2 * k + 1);
+            aux(a, b, c, (l + r) / 2, r, 2 * k + 2);
+        }
+        if (C[k])
+            A[k] = ys[r] - ys[l]; //A[k] =
+        else
+            A[k] = A[2 * k + 1] + A[2 * k + 2];
+    };
+
+    long long area = 0, prev = 0;
+    for(int i = 0; i < es.size(); ++i)
+    {
+        area += (es[i].x - prev) * A[0];
+        prev = es[i].x;
+        aux(es[i].l, es[i].h, es[i].c, 0, n, 0);
+    }
+    return area;
+}
+
+
+
+int main()
+{
+    //vector<vector<int>> v={{1, 1, 6, 5}, {2, 0, 4, 2}, {2, 4, 5, 7}, {4, 3, 8, 6}, {7, 5, 9, 7}};
+    vector<vector<int>> v={{1,1,3,3},{2,2,4,4}};
+    long long r = solution(v);
+    cout<<"\n\n\n—> "<<r<<'\n';
+    return 0;
+}
+
+[형래] [오후 9:13] 이렇게 세그먼트 트리를 이용해서 풀더라구요
+[형래] [오후 9:13] 문제는 이것입니다.
+https://school.programmers.co.kr/learn/courses/30/lessons/12974
+[형래] [오후 9:13] 이 코드에서 31번 줄부터 나오는 재귀 부분이
+[형래] [오후 9:14] 이해가 안가서 질문 드립니다 ㅠㅠ
+[이동현] [오후 9:17] 흠 자료구조 외의 질문은 저도 풀어봐야해서 시간이 좀 걸릴 것 같네요
+[형래] [오후 9:17] 네네 ㅠㅠ 봐주시는 것만으로도 감사합니다
+[형래] [오후 9:17] 벌써 1주일 넘게 고민하고 있네요
+[이동현] [오후 9:37] 중간 중간 cout은 본인이 넣으신건가요?
+[형래] [오후 9:37] 네 중간중간에 보려고 넣었습니다
+[이동현] [오후 9:39] 원본 답안을 주세요
+[형래] [오후 9:40] #include <iostream>
+#include <vector>
+#include <map>
+#include <cstdio>
+#include <algorithm>
+#include <functional>
+
+using namespace std;
+
+#define fst first
+#define snd second
+#define all(c) ((c).begin()), ((c).end())
+
+struct rectangle { int xl, yl, xh, yh; };
+long long rectangle_area(vector<rectangle> rs) {
+  vector<int> ys; // coordinate compression
+  for (int i = 0; i < rs.size(); ++i) {
+    ys.push_back(rs[i].yl);
+    ys.push_back(rs[i].yh);
+  }
+  sort(all(ys)); ys.erase(unique(all(ys)), ys.end());
+
+  int n = ys.size(); // measure tree
+  vector<int> C(8*n), A(8*n);
+  function<void (int,int,int,int,int,int)> aux = 
+  [&](int a, int b, int c, int l, int r, int k) {
+    if ((a = max(a,l)) >= (b = min(b,r))) return;
+    if (a == l && b == r) C[k] += c;
+    else {
+      aux(a, b, c, l, (l+r)/2, 2*k+1);
+      aux(a, b, c, (l+r)/2, r, 2*k+2);
+    }
+    if (C[k]) A[k] = ys[r] - ys[l];
+    else      A[k] = A[2*k+1] + A[2*k+2];
+  };
+
+  struct event { int x, l, h, c; }; // plane sweep
+  vector<event> es;
+  for (auto r: rs) {
+    int l = distance(ys.begin(), lower_bound(all(ys), r.yl));
+    int h = distance(ys.begin(), lower_bound(all(ys), r.yh));
+    es.push_back({r.xl, l, h, +1});
+    es.push_back({r.xh, l, h, -1});
+  }
+  sort(all(es), [](event a, event b) { return a.x != b.x ? a.x < b.x : a.c > b.c; });
+  long long area = 0, prev = 0;
+  for (auto &e: es) {
+    area += (e.x - prev) * A[0];
+    prev = e.x;
+    aux(e.l,e.h,e.c,0,n,0);
+  }
+  return area;
+}
+
+
+long long solution(vector<vector<int> > rectangles)
+{
+    long long answer = -1;
+
+    vector<rectangle> rs(rectangles.size());
+
+    for (size_t i = 0; i < rectangles.size(); i++) {
+        rs[i].xl = rectangles[i][0];
+        rs[i].yl = rectangles[i][1];
+        rs[i].xh = rectangles[i][2];
+        rs[i].yh = rectangles[i][3];
+    }
+
+    answer =  rectangle_area(rs);
+
+    return answer;
+}
+--------------- 2022년 9월 25일 일요일 ---------------
+[이동현] [오전 9:22] 어떻게 설명해드릴까요? 혹시 디스코드 쓰시나요?
+[형래] [오후 2:00] 네 있습니다
+[형래] [오후 2:01] (   )I-DLE 형래#4884
+[이동현] [오후 3:30] https://discord.gg/ChmuRN7MdM
+--------------- 2022년 9월 28일 수요일 ---------------
+[형래] [오후 12:09] 조교님 자료구조 3장 7번 문제에서
+[형래] [오후 12:09] 3차원 배열 A(1:5, 2:4, 1:3)를
+[형래] [오후 12:09] 이런 표현이 있던데
+[형래] [오후 12:10] 이게 도대체 무슨 뜻인가요??
+[이동현] [오후 12:17] 오늘 학교 끝나고 말씀드리겠습니다
+[이동현] [오후 2:24] 각자 면, 행, 열의 인덱스 범위입니다
+[이동현] [오후 2:24] B(1:45)와 같이 적으면 B[1]부터 B[45]까지 있는겁니다
+[형래] [오후 4:56] 그러면 문제 10번에서 A[4][5][10]은 35번 째 원소여야 하는거 아닌가요?
+[이동현] [오후 6:14] 흠..
+[이동현] [오후 6:14] 다시 한 번 생각해보시고 안 되면 말해주세요
+[형래] [오후 6:18] 어머 숫자를 잘못 셋네요
+[형래] [오후 6:18] 해결했습니당
+--------------- 2022년 10월 2일 일요일 ---------------
+[형래] [오전 7:48] 4장 18번에 3,4 둘 다 답이지 않나요?
+[이동현] [오전 11:47] 흠
+[이동현] [오전 11:47] 왜 그렇게 생각하시나요
+[형래] [오후 2:04] 어째서 질문만 하면 답이 보이는 걸까요 B->right->left를 그냥 B라고 생각했었네요
+--------------- 2022년 10월 18일 화요일 ---------------
+[형래] [오후 4:51] deque도 선형 자료구조라고 봐야 하나요?
+[형래] [오후 4:52] 이중 연결 리스트를 사용한다고 나와 있긴 한데
+[형래] [오후 4:52] 선형 자료구조가 아니면 7번 문제에 답이 없어서요
+[이동현] [오후 5:54] 몇장 7번인가요?
+[형래] [오후 6:28] 큐 6장입니다
+[이동현] [오후 6:33] 선형 자료구조와 비선형 자료구조의 차이가 뭐죠?
+[형래] [오후 6:37] 선형 자료구조는 다 하나로 이어진 1차원 배열같은거고 비선형 자료구조는 트리처럼 메모리상 순서랑 의미상 순서가 같지 않은 그런 자료구조 입니다
+[이동현] [오후 6:38] 그럼 deque는 어디에 속하나요
+[이동현] [오후 6:39] 아아 비선형 자료구조 정의가 좀 다른 것 같은데요
+[형래] [오후 6:41] 아 연결리스트도 선형 구조로 보나요?
+[이동현] [오후 6:45] 제가 강의노트가 없어서 그런데 강의노트좀 주시겠어요?
+[형래] [오후 6:50] 파일: 06_큐.pdf
+[형래] [오후 6:51] 48페이지에 있습니다
+[이동현] [오후 9:14] 선형구조란 자료를 구성하는 데이터를 순차적으로 나열시킨 형태를 의미합니다.
+비선형구조란 하나의 자료 뒤(안)에 여러개의 자료가 존재할 수 있는 것을 의미 합니다.
+--------------- 2022년 11월 15일 화요일 ---------------
+[형래] [오후 7:44] 자료구조 7장 문제 8번에서
+[형래] [오후 7:44] 2번과 4번 모두 틀린말이지 않나요?
+[이동현] [오후 7:50] 파일 보내주세요
+[형래] [오후 7:53] 사진
+[이동현] [오후 8:00] 그런것 같은데요?
+[이동현] [오후 8:01] 답이 두개인것같네요
+[형래] [오후 8:01] 네 알겠습니당
+[형래] [오후 8:28] 사진
+[형래] [오후 8:28] 11번에 전위와 중위 순회를 저렇게 돌 수 있는 이진트리가
+[형래] [오후 8:28] 존재하는거 맞나요?
+[형래] [오후 8:28] 아무리 해봐도 안나오는데
+[형래] [오후 8:29] 중위 순회 뒤가 FGE가 아니라 FEG면 딱 말이 되는데
+--------------- 2022년 11월 16일 수요일 ---------------
+[이동현] [오후 2:16] 흠 이건 문제가 없어보이는데요?
+[이동현] [오후 2:16] 보기 중에 답이 있는 것 같습니다
+[형래] [오후 2:23] 네 다시 풀어보겠습니다
+[형래] [오후 3:11] F아래에 G를 오른쪽에 두니까 되는거였군요!
+--------------- 2022년 11월 27일 일요일 ---------------
+[형래] [오후 11:19] 과제 3번째에 프림 알고리즘에서 큐는 대체 왜 쓰라고 넣어둔 건가요?
+--------------- 2022년 11월 28일 월요일 ---------------
+[이동현] [오전 10:26] 과제 보내주시겠어요?
+[형래] [오전 10:27] 파일: 과제2.pdf
+[이동현] [오전 10:37] 어떻게 구현하실 계획이신가요?
+[형래] [오전 10:44] 프림 알고리즘을 보면 가중치가 최소인 간선을 구하는 과정이 있는데
+[형래] [오전 10:45] 이건 굳이 큐를 쓰지 않고 배열을 돌면서 최소값을 찾으면 더 간단하니까
+[형래] [오전 10:45] 어느 부분에서 큐를 써야하는지 모르겟네요
+[이동현] [오전 11:02] 말씀하신대로 순회도 되고 큐도 되는데 이번 과제 조건은 큐인것같네요
+[형래] [오전 11:02] 알겟습니다
+[이동현] [오전 11:03] 그리고 큐를 잘 쓰면 순회보다 더 효율적일 것 같네요
+[형래] [오후 2:49] 큐는 반드시 가중치를 비교할때만 써야하나요?
+[이동현] [오후 6:31] 음 질문이 애매한데 문제 조건은 최소조건이니까 다른 곳에 쓸 필요가 있다면 써도 되지 않을까요?
+[형래] [오후 6:31] 가중치를 비교할 때는 무조건 써야한단 말씀이시죠?
+[이동현] [오후 6:45] 과제 조건에 따르면 그렇습니다
+[형래] [오후 7:55] 넹
